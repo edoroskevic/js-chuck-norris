@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang='en'>
+	<head>
+		<meta charset='utf-8'>
+		<meta name='viewport' content='width=device-width, initial-scale=1'>
+		<title>project-06</title>
+
+		<link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/css/materialize.min.css'>
+		<link rel='stylesheet' href='https://fonts.googleapis.com/icon?family=Material+Icons'>
+
+		<style>
+			body{ text-transform: uppercase; }
+			body, input{ text-align: center; }
+			img{width: 25rem; height: 25rem; }
+			button{ width: 100%; }
+			.container{ max-width: 70%; }
+			.input-field input:focus + label{ color: #37474f !important; }
+			.input-field input:focus{ border-bottom: 1px solid #37474f !important; box-shadow: 0 1px 0 0 #37474f !important; }
+		</style>		
+	</head>
+	<body>
+		<div class='container'>
+			<img src='https://pre00.deviantart.net/0ffd/th/pre/f/2009/146/9/7/yes_he_can_chuck_norris_by_zoking16.jpg' alt='(chuck norris knows where you live)'>
+			
+			<div class='input-field'>
+				<input id='name' type='text' placeholder='Chuck'>
+				<label for='name'>enter a name</label>
+			</div>
+
+			<div class='input-field'>
+				<input id='surname' type='text' placeholder='Norris'>
+				<label for='surname'>enter a surname</label>
+			</div>
+
+			<div class='input-field'>
+				<input id='nmbr-of-jokes' type='number' placeholder=' 1, 2... 30'>
+				<label for='nmbr-of-jokes'>enter a number</label>
+			</div>
+
+			<button class='btn blue-grey darken-4'><span class='amber-text text-lighten-5'>send</span></button>
+			
+			<h3>Facts</h3>
+			<ul class='collection'></ul>
+		</div>
+		<script src='https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-beta/js/materialize.min.js'></script>	
+		<script>
+			let xhr = new XMLHttpRequest()
+			let jokes = document.querySelector('ul');
+			let request = document.querySelector('button');
+			
+			let name = document.getElementById('name');
+			let surname = document.getElementById('surname');
+			let quantity = document.getElementById('nmbr-of-jokes');
+
+			
+			request.addEventListener('click', function(event){	
+				clear();
+
+				xhr.open('GET', api(quantity.value, name.value, surname.value), true);
+					
+				xhr.onload = function(){
+					if(this.status === 200){
+						const response = JSON.parse(this.responseText);
+						print(response);	
+					}
+					else{
+						console.log(`error! ${this.response}`);
+					}
+				};
+				
+				xhr.send();
+
+				event.preventDefault();
+			});
+
+			function print(response){
+				let joke;
+				let text;
+				let entry;
+				
+				if(response.type === 'success'){
+					for(let index = 0; index < response.value.length; ++index){
+						joke = response.value[index].joke;
+			
+						entry = document.createElement('li');
+						text = document.createTextNode(joke);
+					
+						entry.className = 'collection-item';
+
+						entry.appendChild(text);
+						jokes.appendChild(entry);
+					}
+				}
+				else{
+					console.log('woops! something went wrong');
+				}
+			}
+
+			function clear(){
+				while(jokes.firstChild){
+					jokes.firstChild.remove();
+				}
+			}
+
+			function api(number_of_jokes = 1, name = 'Chuck', surname = 'Norris'){
+				number_of_jokes = number_of_jokes >= 1 && number_of_jokes <= 30 ? number_of_jokes : 1;
+				name = name.length <= 1 ? 'Chuck' : name;
+				surname = surname.length <= 3 ? 'Norris' : surname;
+				
+				return `http://api.icndb.com/jokes/random/${number_of_jokes}?firstName=${name}&lastName=${surname}&escape=javascript`;
+			}
+		</script>
+	</body>
+</html>
